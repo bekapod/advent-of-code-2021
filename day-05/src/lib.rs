@@ -53,12 +53,10 @@ impl Diagram {
     diagram.fill_empty(width, height);
 
     for line in lines {
-      let (start_x, start_y) = line.first().expect("no start coordinate");
-      let (end_x, end_y) = line.last().expect("no end coordinate");
+      let (start_x, start_y) = *line.first().expect("no start coordinate");
+      let (end_x, end_y) = *line.last().expect("no end coordinate");
 
-      if start_x == end_x || start_y == end_y {
-        diagram.plot_line((*start_x, *end_x), (*start_y, *end_y));
-      }
+      diagram.plot_line((start_x, end_x), (start_y, end_y));
     }
 
     diagram
@@ -81,6 +79,19 @@ impl Diagram {
     let (start_x, end_x) = x;
     let (start_y, end_y) = y;
 
+    if is_horizontal_line((start_x, end_x), (start_y, end_y)) {
+      self.plot_straight_line((start_x, end_x), (start_y, end_y));
+    }
+
+    if is_perfect_diagonal_line((start_x, end_x), (start_y, end_y)) {
+      self.plot_diagonal_line((start_x, end_x), (start_y, end_y));
+    }
+  }
+
+  fn plot_straight_line(&mut self, x: (u16, u16), y: (u16, u16)) {
+    let (start_x, end_x) = x;
+    let (start_y, end_y) = y;
+
     for i in if start_y > end_y {
       end_y..=start_y
     } else {
@@ -91,13 +102,36 @@ impl Diagram {
       } else {
         start_x..=end_x
       } {
-        self.value.entry(i).and_modify(|c| {
-          c.entry(j).and_modify(|r| {
-            *r += 1;
-          });
-        });
+        self.plot_point(j, i);
       }
     }
+  }
+
+  fn plot_diagonal_line(&mut self, x: (u16, u16), y: (u16, u16)) {
+    let (start_x, end_x) = x;
+    let (start_y, end_y) = y;
+    let ys = if start_y > end_y {
+      (end_y..=start_y).rev().collect::<Vec<u16>>()
+    } else {
+      (start_y..=end_y).collect::<Vec<u16>>()
+    };
+    let xs = if start_x > end_x {
+      (end_x..=start_x).rev().collect::<Vec<u16>>()
+    } else {
+      (start_x..=end_x).collect::<Vec<u16>>()
+    };
+
+    for (idx, i) in xs.iter().enumerate() {
+      self.plot_point(*i, ys[idx]);
+    }
+  }
+
+  fn plot_point(&mut self, x: u16, y: u16) {
+    self.value.entry(y).and_modify(|c| {
+      c.entry(x).and_modify(|r| {
+        *r += 1;
+      });
+    });
   }
 
   #[must_use]
@@ -113,4 +147,26 @@ impl Diagram {
         })
     })
   }
+}
+
+fn is_horizontal_line(x: (u16, u16), y: (u16, u16)) -> bool {
+  let (start_x, end_x) = x;
+  let (start_y, end_y) = y;
+  start_x == end_x || start_y == end_y
+}
+
+fn is_perfect_diagonal_line(x: (u16, u16), y: (u16, u16)) -> bool {
+  let (start_x, end_x) = x;
+  let (start_y, end_y) = y;
+  let diff_x = if start_x > end_x {
+    start_x - end_x
+  } else {
+    end_x - start_x
+  };
+  let diff_y = if start_y > end_y {
+    start_y - end_y
+  } else {
+    end_y - start_y
+  };
+  diff_x == diff_y
 }
