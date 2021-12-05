@@ -1,5 +1,5 @@
 #![warn(clippy::all, clippy::pedantic)]
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::{
   fs::File,
   io::{prelude::*, BufReader},
@@ -8,7 +8,7 @@ use std::{
 
 #[derive(Clone, Debug)]
 pub struct Diagram {
-  value: BTreeMap<u16, BTreeMap<u16, u16>>,
+  value: HashMap<u16, HashMap<u16, u16>>,
 }
 
 impl Diagram {
@@ -23,10 +23,9 @@ impl Diagram {
       .map(|line| line.expect("couldn't parse line"))
       .map(|line| {
         line
-          .split("->")
+          .split(" -> ")
           .map(|parts| {
             parts
-              .trim()
               .split(',')
               .map(|n| n.parse::<u16>().expect("not a number"))
               .collect::<Vec<u16>>()
@@ -47,7 +46,7 @@ impl Diagram {
       .collect::<Vec<Vec<(u16, u16)>>>();
 
     let mut diagram = Diagram {
-      value: BTreeMap::new(),
+      value: HashMap::new(),
     };
 
     diagram.fill_empty(width, height);
@@ -68,7 +67,7 @@ impl Diagram {
         self
           .value
           .entry(i)
-          .or_insert_with(BTreeMap::new)
+          .or_insert_with(HashMap::new)
           .entry(j)
           .or_insert(0);
       }
