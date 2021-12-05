@@ -170,3 +170,23 @@ fn is_perfect_diagonal_line(x: (u16, u16), y: (u16, u16)) -> bool {
   };
   diff_x == diff_y
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  #[test]
+  fn get_number_of_dangerous_areas_example() {
+    assert_eq!(
+      Diagram::new("example.txt").get_number_of_dangerous_areas(),
+      12
+    );
+  }
+
+  #[test]
+  fn get_number_of_dangerous_areas_actual() {
+    assert_eq!(
+      Diagram::new("input.txt").get_number_of_dangerous_areas(),
+      21038
+    );
+  }
+}

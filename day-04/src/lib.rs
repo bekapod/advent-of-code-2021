@@ -134,3 +134,26 @@ pub fn play(numbers: &[u8], boards: &[Board]) -> Vec<Board> {
 
   winning_boards
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  fn setup(filename: &str) -> (u32, u32) {
+    let (numbers, boards) = boards_from_file(filename);
+    let winning_boards = play(&numbers, &boards);
+    (
+      winning_boards.first().unwrap().get_score().unwrap(),
+      winning_boards.last().unwrap().get_score().unwrap(),
+    )
+  }
+
+  #[test]
+  fn get_board_scores_example() {
+    assert_eq!(setup("example.txt"), (4512, 1924));
+  }
+
+  #[test]
+  fn get_board_scores_actual() {
+    assert_eq!(setup("input.txt"), (74320, 17884));
+  }
+}
