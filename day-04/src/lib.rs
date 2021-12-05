@@ -110,23 +110,25 @@ pub fn play(numbers: &[u8], boards: &[Board]) -> Vec<Board> {
   for called_number in numbers.iter().skip(4) {
     called_numbers.insert(*called_number);
     for board in &mut my_boards {
-      if board.winning_number.is_none() {
-        for row in &board.rows {
-          if row.is_subset(&called_numbers) {
-            board.win(called_numbers.clone(), *called_number);
-            winning_boards.push(board.clone());
-            break;
-          }
-        }
-
-        for column in &board.columns {
-          if column.is_subset(&called_numbers) {
-            board.win(called_numbers.clone(), *called_number);
-            winning_boards.push(board.clone());
-            break;
-          }
+      for row in &board.rows {
+        if row.is_subset(&called_numbers) && board.winning_number.is_none() {
+          board.win(called_numbers.clone(), *called_number);
+          winning_boards.push(board.clone());
+          break;
         }
       }
+
+      for column in &board.columns {
+        if column.is_subset(&called_numbers) && board.winning_number.is_none() {
+          board.win(called_numbers.clone(), *called_number);
+          winning_boards.push(board.clone());
+          break;
+        }
+      }
+    }
+
+    if winning_boards.len() == my_boards.len() {
+      break;
     }
   }
 
