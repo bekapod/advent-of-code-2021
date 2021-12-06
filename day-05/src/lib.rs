@@ -62,15 +62,10 @@ impl Diagram {
   }
 
   fn fill_empty(&mut self, width: u16, height: u16) {
+    let row = (0..=width).map(|i| (i, 0)).collect::<HashMap<u16, u16>>();
+
     for i in 0..=height {
-      for j in 0..=width {
-        self
-          .value
-          .entry(i)
-          .or_insert_with(HashMap::new)
-          .entry(j)
-          .or_insert(0);
-      }
+      self.value.entry(i).or_insert_with(|| row.clone());
     }
   }
 
